@@ -18,6 +18,7 @@ from tsfpga.vivado.build_result_checker import (
     Ramb36,
     TotalLuts,
 )
+from tsfpga.yosys.project import YosysNetlistBuild
 
 
 class Module(BaseModule):
@@ -282,6 +283,17 @@ class Module(BaseModule):
                     Ramb18(EqualTo(0)),
                     MaximumLogicLevel(EqualTo(6)),
                 ],
+            )
+        )
+        
+        projects.append(
+            YosysNetlistBuild(
+                name="fifo_yosys_test",
+                top_module=self,
+                modules=modules,
+                generics=generics,
+                top="fifo",
+                synth_command="synth_xilinx"
             )
         )
 
