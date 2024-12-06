@@ -18,7 +18,12 @@ from tsfpga.vivado.build_result_checker import (
     Ramb36,
     TotalLuts,
 )
-from tsfpga.yosys.project import YosysNetlistBuild
+from tsfpga.yosys.project import YosysXilinxNetlistBuild
+from tsfpga.yosys.project import TotalLuts as YosysTotalLuts
+from tsfpga.yosys.project import Ffs as YosysFfs
+from tsfpga.yosys.project import Ramb18 as YosysRamb18
+from tsfpga.yosys.project import Ramb36 as YosysRamb36
+from tsfpga.yosys.project import TotalLuts as YosysTotalLuts
 
 
 class Module(BaseModule):
@@ -271,7 +276,7 @@ class Module(BaseModule):
         generics.update(enable_drop_packet=False, enable_peek_mode=True)
         projects.append(
             TsfpgaExampleVivadoNetlistProject(
-                name=self.test_case_name(f"{self.library_name}.fifo.with_peek_mode", generics),
+                name="hej", #self.test_case_name(f"{self.library_name}.fifo.with_peek_mode", generics),
                 modules=modules,
                 part=part,
                 top="fifo",
@@ -287,13 +292,18 @@ class Module(BaseModule):
         )
         
         projects.append(
-            YosysNetlistBuild(
+            YosysXilinxNetlistBuild(
                 name="fifo_yosys_test",
                 top_module=self,
                 modules=modules,
                 generics=generics,
                 top="fifo",
-                synth_command="synth_xilinx"
+                build_result_checkers=[
+                    YosysFfs(EqualTo(58)),
+                    YosysTotalLuts(EqualTo(48)),
+                    YosysRamb36(EqualTo(1)),
+                    YosysRamb18(EqualTo(0)),
+                ]
             )
         )
 
